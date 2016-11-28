@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ThreeJS演示</title>
+
+</head>
+<body onload="init()">
+
+<canvas id="canvas" width="800px" height="600px"></canvas>
+
+<script src="three.js"></script>
+
+<script>
+  function init() {
+
+    // 定义一个渲染器，真实世界
+    const renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById('canvas')
+    })
+
+    // 设置背景颜色
+    renderer.setClearColor(0x000000)
+
+    const scene = new THREE.Scene()
+
+
+//    // 照相机
+//    const camera = new THREE.PerspectiveCamera(45, 4 / 2, 1, 1000)
+//    // 照相机默认面向z轴负方向放置
+//    camera.position.set(0, 0, 5)
+//
+//    scene.add(camera)
+//
+//    let cube = new THREE.Mesh(new THREE.CubeGeometry(1, 2, 3),
+//      new THREE.MeshBasicMaterial({
+//          color: 0xff0000
+//      })
+//    )
+//
+//    scene.add(cube)
+//
+
+    /* 正交投影照相机*/
+    // left, right, top, bottom. near, far
+    // 为了显示效果，保证right-left和top-bottom的比例和canvas的宽高比例一致
+//    const camera = new THREE.OrthographicCamera(-2, 2, 1.5, -1.5, 1, 10)
+//
+//    camera.position.set(4, -3, 5)
+//
+//    camera.lookAt(new THREE.Vector3(0, 0, 0))
+//
+//    scene.add(camera)
+//
+//    const cube = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1),
+//      new THREE.MeshBasicMaterial({
+//        color: 0xff0000,
+//        wireframe: true
+//      })
+//    )
+//
+//    scene.add(cube)
+
+    /* 透视投影照相机
+      http://www.ituring.com.cn/article/49446
+      区别在于，正交投影是人眼的效果，透视投影会有近大远小透视看整体的效果
+      */
+
+    // fov, aspect, near, far
+    // fov单位是角度，aspect一般是画布的比例
+    const camera = new THREE.PerspectiveCamera(45, 800 / 600, 1, 10)
+    camera.position.set(0, 0, 5)
+    scene.add(camera)
+
+    const cube = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1),
+      new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        wireframe: true
+      })
+    )
+    scene.add(cube)
+
+    renderer.render(scene, camera)
+
+  }
+</script>
+</body>
+</html>
