@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>动画测试</title>
+</head>
+<body onload="init()">
+
+<canvas id="canvas" width="800px" height="600px"></canvas>
+
+
+<button onclick="drop()">开始</button>
+<script src="three.js"></script>
+
+<script>
+  // 下落的起始高度
+  const MAX_HEIGHT = 5
+
+  let scene, camera, renderer, id
+
+  // 球半径
+  let ballRadius = 0.5
+
+  let ballMesh
+
+  // 这里的速度和加速度的单位都是每帧，而不是每秒
+  // 下落速度
+  let v = 0
+  // 加速度
+  let a = -0.01
+
+  // 是否在移动
+  let isMoving = false
+
+  function init() {
+    renderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById('canvas')
+    })
+
+    scene = new THREE.Scene()
+
+    // 初始化照相机
+    camera = new THREE.OrthographicCamera(-5, 5, 3.75, -3.75, 0.1, 100)
+    camera.position.set(5, 10, 20)
+    camera.lookAt(new THREE.Vector3(0, 3, 0))
+    scene.add(camera)
+
+
+    // 网格，球
+    ballMesh = new THREE.Mesh(new THREE.SphereGeometry(ballRadius, 16, 8),
+      new THREE.MeshLambertMaterial({
+        color: 0xffff00
+      })
+    )
+    // 初始位置在平面上
+    ballMesh.position.y = ballRadius
+    scene.add(ballMesh)
+
+    // 材料，质地
+    let texture = THREE.ImageUtils.loadTexture('./img/chess.png', {}, function () {
+      renderer.render(scene, camera)
+    })
+    texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+    texture.repeat.set(4, 4)
+
+    // 地板平面，采用黑白棋盘作为材料
+    // 默认的平面在x轴与y轴所在平面内，但是这里，我们需要的是x轴与z轴所在平面，所以做了一个旋转
+    let plane = new THREE.Mesh(new THREE.PlaneGeometry(5, 5),
+      new THREE.MeshLambertMaterial({
+        map: texture
+      })
+    )
+    plane.rotation.x = -Math.PI / 2
+    scene.add(plane)
+
+    // 光源设置
+    let light = new THREE.DirectionalLight(0xffffff)
+    light.position.set(10, 10, 15)
+    scene.add(light)
+
+    id = requestAnimationFrame(draw)
+  }
+
+  function draw() {
+    renderer.render(scene, camera)
+
+    // 让球不停旋转
+    // 可有可无的
+    ballMesh.rotation.y = (ballMesh.rotation.y + 0.02) % (Math.PI * 2)
+
+    if (isMoving) {
+
+      // 更新球的位置
+      ballMesh.position.y += v
+      // 根据加速度更新速度
+      v += a
+
+      // 到达地面，速度衰减10%
+      if (ballMesh.position.y <= ballRadius) {
+        v = -v * 0.9
+      }
+
+      // 如果速度低到一定程度，让其停止在平面
+      if (Math.abs(v) < 0.001) {
+        isMoving = false
+        ballMesh.position.y = ballRadius
+      }
+    }
+
+    renderer.render(scene, camera)
+
+    id = requestAnimationFrame(draw)
+  }
+
+  // 从最高处开始下落
+  function drop() {
+    isMoving = true
+    ballMesh.position.y = MAX_HEIGHT
+    v = 0
+  }
+
+</script>
+</body>
+</html>
